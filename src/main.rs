@@ -6,6 +6,9 @@ use bevy::{
 mod arrows;
 use arrows::ArrowsPlugin;
 
+mod consts;
+mod types;
+
 #[derive(Component)]
 struct Person;
 
@@ -37,7 +40,10 @@ fn main() {
 }
 
 fn setup(mut commands: Commands) {
+    // let config = types::load_config();
+
     commands.spawn(Camera2dBundle::default());
+    // .insert_resource(config); // TODO
 }
 
 pub struct CameraPlugin;

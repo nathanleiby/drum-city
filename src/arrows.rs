@@ -1,3 +1,4 @@
+use crate::consts::*;
 use bevy::prelude::*;
 
 /// Keep textures and materials for arrows
@@ -46,7 +47,7 @@ fn spawn_arrows(
         return;
     }
 
-    let transform = Transform::from_translation(Vec3::new(-400., 0., 1.));
+    let transform = Transform::from_translation(Vec3::new(SPAWN_POSITION, 0., 1.));
     commands
         .spawn(SpriteBundle {
             // texture: asset_server.load("branding/bevy_bird_dark.png"),
@@ -64,7 +65,7 @@ fn spawn_arrows(
 /// Moves arrows forward
 fn move_arrows(time: Res<Time>, mut query: Query<(&mut Transform, &Arrow)>) {
     for (mut transform, _arrow) in query.iter_mut() {
-        transform.translation.x += 200. * time.delta_seconds();
+        transform.translation.x += time.delta_seconds() * BASE_SPEED;
     }
 }
 
