@@ -1,5 +1,8 @@
 use crate::consts::*;
-use bevy::input::{keyboard::KeyCode, Input};
+use bevy::{
+    ecs::system::Resource,
+    input::{keyboard::KeyCode, Input},
+};
 use core::f32::consts::PI;
 
 #[derive(Copy, Clone, Debug, PartialEq)]
@@ -72,7 +75,7 @@ pub struct ArrowTime {
     pub direction: Directions,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Resource)]
 pub struct SongConfig {
     pub arrows: Vec<ArrowTime>,
 }

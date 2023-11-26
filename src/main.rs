@@ -19,10 +19,13 @@ struct Name(String);
 struct GreetTimer(Timer);
 
 fn main() {
+    let config = types::load_config();
     App::new()
         .insert_resource(GreetTimer(Timer::from_seconds(2.0, TimerMode::Repeating)))
         // antialiasing
         .insert_resource(Msaa::Sample4)
+        // song config
+        .insert_resource(config)
         // window configuration
         .add_plugins(DefaultPlugins.set(WindowPlugin {
             primary_window: Some(Window {
@@ -40,10 +43,7 @@ fn main() {
 }
 
 fn setup(mut commands: Commands) {
-    // let config = types::load_config();
-
     commands.spawn(Camera2dBundle::default());
-    // .insert_resource(config); // TODO
 }
 
 pub struct CameraPlugin;
