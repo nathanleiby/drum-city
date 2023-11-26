@@ -1,4 +1,7 @@
-use bevy::prelude::*;
+use bevy::{
+    prelude::*,
+    window::{CursorGrabMode, PresentMode, WindowResolution},
+};
 
 #[derive(Component)]
 struct Person;
@@ -12,7 +15,20 @@ struct GreetTimer(Timer);
 fn main() {
     App::new()
         .insert_resource(GreetTimer(Timer::from_seconds(2.0, TimerMode::Repeating)))
-        .add_plugins((DefaultPlugins, HelloPlugin))
+        // antialiasing
+        .insert_resource(Msaa::Sample4)
+        // window configuration
+        .add_plugins(DefaultPlugins.set(WindowPlugin {
+            primary_window: Some(Window {
+                title: "Drum City!".to_string(),
+                resolution: WindowResolution::new(800., 600.),
+                present_mode: PresentMode::AutoVsync,
+                ..default()
+            }),
+            ..default()
+        }))
+        .add_plugins(HelloPlugin)
+        .add_systems(Update, bevy::window::close_on_esc)
         .run();
 }
 
