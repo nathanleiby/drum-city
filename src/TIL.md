@@ -30,3 +30,12 @@ Based on these, how might I structure my game?
     - given ScoreKeeping input, suggests what to work on
 
 I'm not yet sure if worth diving into details of ECS yet. But I'll likely be working on Sequencer and Input plugins first, so whatever supports those is top priority.
+
+--
+
+NewType pattern means making a custom type for an existing type, so that typechecking is stricter.
+e.g. Age could be `usize` or it could use a newtype of `struct Years(usize)` to ensure we're passing around each type correctly.
+This could be especially useful if we're passing inputs to another function where they could get mixed up!
+`fn doSomething(years: usize, months: usize)` is made safer in typechecking via `fn doSomething(years: Years, months: Months)`.
+
+

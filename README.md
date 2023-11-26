@@ -12,4 +12,5 @@ Changes from that
   - https://github.com/bevyengine/bevy/issues/10524
 - for fast builds, do not need to install `lld` directly.. just `brew install llvm`
   - https://github.com/bevyengine/bevy/blob/main/.cargo/config_fast_builds
-
+- nit: broken link to newtype pattern - newer link here https://doc.rust-lang.org/rust-by-example/generics/new_types.html
+- lots of small changes to "Spawning and moving arrows" section

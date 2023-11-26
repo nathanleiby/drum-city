@@ -1,7 +1,10 @@
 use bevy::{
     prelude::*,
-    window::{CursorGrabMode, PresentMode, WindowResolution},
+    window::{PresentMode, WindowResolution},
 };
+
+mod arrows;
+use arrows::ArrowsPlugin;
 
 #[derive(Component)]
 struct Person;
@@ -28,37 +31,9 @@ fn main() {
             ..default()
         }))
         .add_plugins(CameraPlugin)
-        .add_plugins(HelloPlugin)
+        .add_plugins(ArrowsPlugin)
         .add_systems(Update, bevy::window::close_on_esc)
         .run();
-}
-
-fn add_people(mut commands: Commands) {
-    commands.spawn((Person, Name("Elaina Proctor".to_string())));
-    commands.spawn((Person, Name("Renzo Hume".to_string())));
-    commands.spawn((Person, Name("Zayna Nieves".to_string())));
-}
-
-fn greet_people(
-    time: Res<Time>,
-    mut greet_timer: ResMut<GreetTimer>,
-    query: Query<&Name, With<Person>>,
-) {
-    // add elapsed time to timer.
-    // if it just finished an interval, then print
-    if greet_timer.0.tick(time.delta()).just_finished() {
-        for name in &query {
-            println!("hello {}!", name.0);
-        }
-    }
-}
-
-pub struct HelloPlugin;
-impl Plugin for HelloPlugin {
-    fn build(&self, app: &mut App) {
-        app.add_systems(Startup, add_people)
-            .add_systems(Update, greet_people);
-    }
 }
 
 fn setup(mut commands: Commands) {
