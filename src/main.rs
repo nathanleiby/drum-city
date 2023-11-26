@@ -27,6 +27,7 @@ fn main() {
             }),
             ..default()
         }))
+        .add_plugins(CameraPlugin)
         .add_plugins(HelloPlugin)
         .add_systems(Update, bevy::window::close_on_esc)
         .run();
@@ -57,5 +58,16 @@ impl Plugin for HelloPlugin {
     fn build(&self, app: &mut App) {
         app.add_systems(Startup, add_people)
             .add_systems(Update, greet_people);
+    }
+}
+
+fn setup(mut commands: Commands) {
+    commands.spawn(Camera2dBundle::default());
+}
+
+pub struct CameraPlugin;
+impl Plugin for CameraPlugin {
+    fn build(&self, app: &mut App) {
+        app.add_systems(Startup, setup);
     }
 }
