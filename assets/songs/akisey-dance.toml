@@ -1,6 +1,6 @@
 # https://opengameart.org/content/akisey-dance
 name = "Akisey Dance"
-filename = "akisey-dance.mp3"
+filename = "akisey-dance.ogg"
 
 arrows = [
     { click_time = 1.00, speed = "Slow", direction = "Up" },

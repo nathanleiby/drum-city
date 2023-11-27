@@ -13,6 +13,9 @@ mod ui;
 use types::SongConfig;
 use ui::UIPlugin;
 
+mod audio;
+use audio::AudioPlugin;
+
 mod consts;
 mod types;
 
@@ -47,6 +50,7 @@ fn main() {
         .add_plugins(CameraPlugin)
         .add_plugins(ArrowsPlugin)
         .add_plugins(UIPlugin)
+        .add_plugins(AudioPlugin)
         .run();
 }
 
