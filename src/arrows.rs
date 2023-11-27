@@ -97,7 +97,36 @@ pub struct ArrowsPlugin;
 impl Plugin for ArrowsPlugin {
     fn build(&self, app: &mut App) {
         app.init_resource::<ArrowMaterialResource>()
+            .add_systems(Startup, setup_target_arrows)
             .add_systems(Update, spawn_arrows)
             .add_systems(Update, move_arrows);
+    }
+}
+#[derive(Component)]
+struct TargetArrow;
+
+/// Setup target arrows
+fn setup_target_arrows(mut commands: Commands, materials: Res<ArrowMaterialResource>) {
+    for direction in &[
+        Directions::Up,
+        Directions::Down,
+        Directions::Left,
+        Directions::Right,
+    ] {
+        let mut transform =
+            Transform::from_translation(Vec3::new(TARGET_POSITION, direction.y(), 1.));
+        transform.rotate(Quat::from_rotation_z(direction.rotation()));
+
+        commands
+            .spawn(SpriteBundle {
+                texture: materials.border_image.clone(),
+                sprite: Sprite {
+                    custom_size: Some(Vec2::new(140., 140.)),
+                    ..Default::default()
+                },
+                transform,
+                ..Default::default()
+            })
+            .insert(TargetArrow {});
     }
 }
