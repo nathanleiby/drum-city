@@ -12,3 +12,6 @@ pub const THRESHOLD: f32 = 20.;
 
 /// Total distance between the spawn and target positions
 pub const DISTANCE: f32 = TARGET_POSITION - SPAWN_POSITION;
+
+/// Number of seconds to wait before audio plays
+pub const START_TIME_OFFSET: f32 = 3.;

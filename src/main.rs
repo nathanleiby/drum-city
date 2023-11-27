@@ -5,9 +5,11 @@ use bevy::{
 
 mod arrows;
 use arrows::ArrowsPlugin;
+use ui::UIPlugin;
 
 mod consts;
 mod types;
+mod ui;
 
 #[derive(Component)]
 struct Person;
@@ -21,7 +23,7 @@ struct GreetTimer(Timer);
 fn main() {
     let config = types::load_config();
     App::new()
-        .insert_resource(GreetTimer(Timer::from_seconds(2.0, TimerMode::Repeating)))
+        .add_systems(Update, bevy::window::close_on_esc)
         // antialiasing
         .insert_resource(Msaa::Sample4)
         // song config
@@ -38,7 +40,7 @@ fn main() {
         }))
         .add_plugins(CameraPlugin)
         .add_plugins(ArrowsPlugin)
-        .add_systems(Update, bevy::window::close_on_esc)
+        .add_plugins(UIPlugin)
         .run();
 }
 
