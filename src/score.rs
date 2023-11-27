@@ -24,7 +24,7 @@ impl Score {
         self.corrects += 1;
 
         let score_multiplier = (THRESHOLD - distance.abs()) / THRESHOLD;
-        let points = (100.0 * score_multiplier).min(10.).max(100.) as usize;
+        let points = (100.0 * score_multiplier).min(100.).max(10.) as usize;
         self.score += points;
 
         points

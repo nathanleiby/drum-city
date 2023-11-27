@@ -1,5 +1,5 @@
-use crate::types::*;
 use crate::{consts::*, types::SongConfig};
+use crate::{score, types::*};
 use bevy::prelude::*;
 
 /// Keep textures and materials for arrows
@@ -136,6 +136,7 @@ fn despawn_arrows(
     mut commands: Commands,
     query: Query<(Entity, &Transform, &Arrow)>,
     keyboard_input: Res<Input<KeyCode>>,
+    mut score: ResMut<score::Score>,
 ) {
     for (entity, transform, arrow) in query.iter() {
         let pos = transform.translation.x;
@@ -143,10 +144,12 @@ fn despawn_arrows(
             // pressed input with correct timing
             if arrow.direction.key_just_pressed(&keyboard_input) {
                 commands.entity(entity).despawn();
+                score.incr_correct(pos - TARGET_POSITION);
             }
         } else if pos > 2. * TARGET_POSITION {
             // left screen
             commands.entity(entity).despawn();
+            score.incr_failed();
         }
     }
 }
