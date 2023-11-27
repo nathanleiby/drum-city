@@ -1,11 +1,18 @@
 use crate::consts::*;
 use bevy::{
-    ecs::system::Resource,
+    asset::{AssetServer, Handle},
+    audio::AudioSource,
+    ecs::{
+        system::Resource,
+        world::{FromWorld, World},
+    },
     input::{keyboard::KeyCode, Input},
 };
 use core::f32::consts::PI;
+use serde_derive::{Deserialize, Serialize};
+use std::{fs::File, io::Read};
 
-#[derive(Copy, Clone, Debug, PartialEq)]
+#[derive(Copy, Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub enum Directions {
     Up,
     Down,
@@ -45,7 +52,7 @@ impl Directions {
     }
 }
 
-#[derive(Copy, Clone, Debug)]
+#[derive(Copy, Clone, Debug, Serialize, Deserialize)]
 pub enum Speed {
     Slow,
     Medium,
@@ -75,28 +82,70 @@ pub struct ArrowTime {
     pub direction: Directions,
 }
 
-#[derive(Debug, Resource)]
-pub struct SongConfig {
-    pub arrows: Vec<ArrowTime>,
-}
 impl ArrowTime {
-    fn new(click_time: f64, speed: Speed, direction: Directions) -> Self {
+    fn new_from_toml(a: &ArrowTimeToml) -> Self {
         Self {
-            spawn_time: click_time - (DISTANCE / speed.value()) as f64,
-            speed,
-            direction,
+            spawn_time: a.click_time - (DISTANCE / a.speed.value()) as f64,
+            speed: a.speed,
+            direction: a.direction,
         }
     }
 }
 
-pub fn load_config() -> SongConfig {
+#[derive(Debug, Resource)]
+pub struct SongConfig {
+    pub name: String,
+    pub song_audio: Handle<AudioSource>,
+    pub arrows: Vec<ArrowTime>,
+}
+
+pub fn load_config(path: &str, asset_server: &AssetServer) -> SongConfig {
+    let mut file = File::open(format!("assets/songs/{}", path)).expect("Could not open file");
+    let mut contents = String::new();
+    file.read_to_string(&mut contents)
+        .expect("Could not read file into string");
+
+    let parsed: SongConfigToml =
+        toml::from_str(&contents).expect("Could not parse into SongConfigToml");
+
+    let mut arrows = parsed
+        .arrows
+        .iter()
+        .map(|a| ArrowTime::new_from_toml(a))
+        .collect::<Vec<ArrowTime>>();
+
+    // Sort by spawn_time
+    arrows.sort_by(|a, b| a.spawn_time.partial_cmp(&b.spawn_time).unwrap());
+
+    // TODO: what is &* about
+    let song_audio = asset_server.load(format!("songs/{}", parsed.filename));
+
     SongConfig {
-        arrows: vec![
-            ArrowTime::new(1.0, Speed::Slow, Directions::Up),
-            ArrowTime::new(2.0, Speed::Slow, Directions::Down),
-            ArrowTime::new(3.0, Speed::Slow, Directions::Left),
-            ArrowTime::new(4.0, Speed::Medium, Directions::Up),
-            ArrowTime::new(5.0, Speed::Fast, Directions::Right),
-        ],
+        name: parsed.name,
+        arrows,
+        song_audio,
     }
+}
+
+// The approach here it to create a handle to the material, so that arrows share a reference vs each having their own copy.
+impl FromWorld for SongConfig {
+    fn from_world(world: &mut World) -> Self {
+        let asset_server = world.resource::<AssetServer>();
+
+        load_config("akisey-dance.toml", asset_server)
+    }
+}
+
+#[derive(Deserialize, Serialize)]
+pub struct SongConfigToml {
+    pub name: String,
+    pub filename: String,
+    pub arrows: Vec<ArrowTimeToml>,
+}
+
+#[derive(Serialize, Deserialize, Debug)]
+pub struct ArrowTimeToml {
+    pub click_time: f64,
+    pub speed: Speed,
+    pub direction: Directions,
 }

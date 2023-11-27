@@ -10,6 +10,7 @@ mod score;
 use score::Score;
 
 mod ui;
+use types::SongConfig;
 use ui::UIPlugin;
 
 mod consts;
@@ -25,13 +26,10 @@ struct Name(String);
 struct GreetTimer(Timer);
 
 fn main() {
-    let config = types::load_config();
     App::new()
         .add_systems(Update, bevy::window::close_on_esc)
         // antialiasing
         .insert_resource(Msaa::Sample4)
-        // song config
-        .insert_resource(config)
         // score tracking
         .insert_resource(Score::new())
         // window configuration
@@ -44,6 +42,8 @@ fn main() {
             }),
             ..default()
         }))
+        // song config
+        .init_resource::<SongConfig>()
         .add_plugins(CameraPlugin)
         .add_plugins(ArrowsPlugin)
         .add_plugins(UIPlugin)
