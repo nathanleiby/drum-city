@@ -5,11 +5,15 @@ use bevy::{
 
 mod arrows;
 use arrows::ArrowsPlugin;
+
+mod score;
+use score::Score;
+
+mod ui;
 use ui::UIPlugin;
 
 mod consts;
 mod types;
-mod ui;
 
 #[derive(Component)]
 struct Person;
@@ -28,6 +32,8 @@ fn main() {
         .insert_resource(Msaa::Sample4)
         // song config
         .insert_resource(config)
+        // score tracking
+        .insert_resource(Score::new())
         // window configuration
         .add_plugins(DefaultPlugins.set(WindowPlugin {
             primary_window: Some(Window {
