@@ -1,8 +1,5 @@
 //!
-//! A shader.
-//!
-//! Attempted  to port this from https://caballerocoll.com/blog/bevy-rhythm-game/
-//! but it's not fully working yet...
+//! Ported from https://caballerocoll.com/blog/bevy-rhythm-game/
 //!
 #import bevy_pbr::forward_io::VertexOutput
 
@@ -15,33 +12,18 @@
 @group(1) @binding(1) var texture: texture_2d<f32>;
 @group(1) @binding(2) var texture_sampler: sampler;
 
-fn lin2srgb(cl: vec3<f32> ) -> vec3<f32> {
-    let c_lo: vec3<f32> = 12.92 * cl;
-    let c_hi: vec3<f32> = 1.055 * pow(cl,vec3(0.41666)) - 0.055;
-    let s: vec3<f32> = step( vec3(0.0031308), cl);
-    return mix( c_lo, c_hi, s );
+fn modulo(c: vec3<f32>, d: f32) -> vec3<f32> {
+    return vec3(c.x % d, c.y % d, c.z % d);
 }
 
 fn hsb2rgb(c: vec3<f32>) -> vec3<f32> {
-    // TODO: why no mod in bevy? ask in discord maybe
-    var rgb: vec3<f32> = clamp(abs(mod(c.x*6.0+vec3(0.0,4.0,2.0),6.0) - 3.0) - 1.0,
+    var rgb: vec3<f32> = clamp(abs(modulo(c.x*6.0+vec3(0.0,4.0,2.0),6.0) - 3.0) - 1.0,
                      vec3(0.0),
                      vec3(1.0),
     );
     rgb = rgb*rgb*(3.0 - 2.0 * rgb);
     return c.z * mix( vec3(1.0), rgb, c.y);
 }
-
-// fn hsb2rgb(c: vec3<f32>) -> vec3<f32> {
-//     let x: vec3<f32> = vec3(0.0,4.0,2.0);
-//     // let n: f32 = abs(mod(c.x*6.0+x,6.0) - 3.0) - 1.0;
-//     let n: f32 = abs(fract(c.x)) - 1.0; // TODO
-//     var rgb: f32 = clamp(n, 0.0, 1.0);
-//     // var rgb: vec3<f32> = clamp(n, vec3(0.0), vec3(1.0));
-//     // var rgb: vec3<f32> = x;
-//     rgb = rgb*rgb*(3.0 - 2.0 * rgb );
-//     return c.z * mix( vec3(1.0), vec3(rgb), vec3(c.y));
-// }
 
 fn wave_sin(x: f32) -> f32 {
     let amplitude: f32 = 0.5;
