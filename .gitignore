@@ -16,3 +16,5 @@ Cargo.lock
 # web assembly builds
 out/
 target/
+
+.DS_Store

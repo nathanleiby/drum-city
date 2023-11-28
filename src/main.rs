@@ -19,6 +19,9 @@ use audio::AudioPlugin;
 mod consts;
 mod types;
 
+mod shaders;
+use shaders::ShadersPlugin;
+
 #[derive(Component)]
 struct Person;
 
@@ -55,6 +58,7 @@ fn main() {
         .add_plugins(ArrowsPlugin)
         .add_plugins(UIPlugin)
         .add_plugins(AudioPlugin)
+        .add_plugins(ShadersPlugin)
         .run();
 }
 
