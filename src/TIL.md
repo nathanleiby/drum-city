@@ -38,4 +38,7 @@ e.g. Age could be `usize` or it could use a newtype of `struct Years(usize)` to 
 This could be especially useful if we're passing inputs to another function where they could get mixed up!
 `fn doSomething(years: usize, months: usize)` is made safer in typechecking via `fn doSomething(years: Years, months: Months)`.
 
+--
+
+
 

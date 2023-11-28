@@ -100,6 +100,8 @@ pub struct SongConfig {
 }
 
 pub fn load_config(path: &str, asset_server: &AssetServer) -> SongConfig {
+    // For WASM, fetch a remote file
+    // https://rustwasm.github.io/wasm-bindgen/examples/fetch.html
     let mut file = File::open(format!("assets/songs/{}", path)).expect("Could not open file");
     let mut contents = String::new();
     file.read_to_string(&mut contents)
