@@ -7,6 +7,7 @@ mod arrows;
 use arrows::ArrowsPlugin;
 
 mod score;
+use consts::*;
 use score::Score;
 
 mod ui;
@@ -46,7 +47,7 @@ fn main() {
         .add_plugins(DefaultPlugins.set(WindowPlugin {
             primary_window: Some(Window {
                 title: "Drum City!".to_string(),
-                resolution: WindowResolution::new(800., 600.),
+                resolution: WindowResolution::new(WINDOW_WIDTH, WINDOW_HEIGHT),
                 present_mode: PresentMode::AutoVsync,
                 ..default()
             }),

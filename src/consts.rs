@@ -15,3 +15,9 @@ pub const DISTANCE: f32 = TARGET_POSITION - SPAWN_POSITION;
 
 /// Number of seconds to wait before audio plays
 pub const START_TIME_OFFSET: f32 = 3.;
+
+/// Width of the window
+pub const WINDOW_WIDTH: f32 = 800.;
+
+/// Height of the window
+pub const WINDOW_HEIGHT: f32 = 600.;

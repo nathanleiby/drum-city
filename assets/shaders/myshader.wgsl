@@ -1,5 +1,5 @@
 //!
-//! The default 3d Shader.
+//! A shader.
 //!
 #import bevy_pbr::forward_io::VertexOutput
 #import bevy_pbr::mesh_view_bindings::globals;
@@ -16,14 +16,12 @@ const SPEED:f32 = 1.0;
 
 @fragment
 fn fragment(in: VertexOutput) -> @location(0) vec4<f32> {
-    // // ensure our uv coords match shadertoy/the-lil-book-of-shaders
-    // let texture_uvs = in.uv;
-
-    // let tex: vec4f = textureSample(texture, texture_sampler, texture_uvs);
-    // return tex;
-
     var tiled_uv: vec2<f32>;
-    tiled_uv = fract(in.uv * 10.0);
+    var tiled_uv_x: f32;
+    var tiled_uv_y: f32;
+    tiled_uv_x = fract(in.uv.x * 4.0);
+    tiled_uv_y = fract(in.uv.y * 3.0);
+    tiled_uv = vec2(tiled_uv_x,tiled_uv_y);
     return textureSample(texture, texture_sampler, tiled_uv);
 }
 

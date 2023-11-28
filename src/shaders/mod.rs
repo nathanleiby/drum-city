@@ -7,6 +7,8 @@ use bevy::{
     sprite::{Material2d, Material2dPlugin, MaterialMesh2dBundle},
 };
 
+use crate::consts::{WINDOW_HEIGHT, WINDOW_WIDTH};
+
 // #[derive(Asset, TypePath, AsBindGroup, Debug, Clone)]
 // pub struct CustomMaterial {}
 
@@ -66,11 +68,11 @@ fn setup(
     commands.spawn(MaterialMesh2dBundle {
         // mesh: meshes.add(shape::Plane { size: 3.0 }.into()).into(),
         mesh: meshes.add(Mesh::from(shape::Quad::default())).into(),
-        transform: Transform::default().with_scale(Vec3::splat(100.)),
+        transform: Transform::default().with_scale(Vec3::new(WINDOW_WIDTH, WINDOW_HEIGHT, 0.)),
         // material: materials.add(ColorMaterial::from(Color::TURQUOISE)),
         material: materials.add(CustomMaterial {
             color: Color::BLUE,
-            color_texture: Some(asset_server.load("images/ship_C.png")),
+            color_texture: Some(asset_server.load("images/space.png")),
         }),
         ..default()
     });
