@@ -20,7 +20,8 @@ use crate::consts::{WINDOW_HEIGHT, WINDOW_WIDTH};
 
 impl Material2d for CustomMaterial {
     fn fragment_shader() -> ShaderRef {
-        "shaders/myshader.wgsl".into()
+        // "shaders/myshader.wgsl".into()
+        "shaders/myshader2.wgsl".into()
 
         //// watt.. all of the below don't work
         // "shaders/myshader_2d.wgsl".into() // Shadertoy mode??

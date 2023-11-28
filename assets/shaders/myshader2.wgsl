@@ -15,17 +15,33 @@
 @group(1) @binding(1) var texture: texture_2d<f32>;
 @group(1) @binding(2) var texture_sampler: sampler;
 
+fn lin2srgb(cl: vec3<f32> ) -> vec3<f32> {
+    let c_lo: vec3<f32> = 12.92 * cl;
+    let c_hi: vec3<f32> = 1.055 * pow(cl,vec3(0.41666)) - 0.055;
+    let s: vec3<f32> = step( vec3(0.0031308), cl);
+    return mix( c_lo, c_hi, s );
+}
 
 fn hsb2rgb(c: vec3<f32>) -> vec3<f32> {
-    let x: vec3<f32> = vec3(0.0,4.0,2.0);
-    // let n: f32 = abs(mod(c.x*6.0+x,6.0) - 3.0) - 1.0;
-    let n: f32 = abs(fract(c.x) - 1.0; // TODO
-    var rgb: f32 = clamp(n, 0.0, 1.0);
-    // var rgb: vec3<f32> = clamp(n, vec3(0.0), vec3(1.0));
-    // var rgb: vec3<f32> = x;
-    rgb = rgb*rgb*(3.0 - 2.0 * rgb );
-    return c.z * mix( vec3(1.0), vec3(rgb), vec3(c.y));
+    // TODO: why no mod in bevy? ask in discord maybe
+    var rgb: vec3<f32> = clamp(abs(mod(c.x*6.0+vec3(0.0,4.0,2.0),6.0) - 3.0) - 1.0,
+                     vec3(0.0),
+                     vec3(1.0),
+    );
+    rgb = rgb*rgb*(3.0 - 2.0 * rgb);
+    return c.z * mix( vec3(1.0), rgb, c.y);
 }
+
+// fn hsb2rgb(c: vec3<f32>) -> vec3<f32> {
+//     let x: vec3<f32> = vec3(0.0,4.0,2.0);
+//     // let n: f32 = abs(mod(c.x*6.0+x,6.0) - 3.0) - 1.0;
+//     let n: f32 = abs(fract(c.x)) - 1.0; // TODO
+//     var rgb: f32 = clamp(n, 0.0, 1.0);
+//     // var rgb: vec3<f32> = clamp(n, vec3(0.0), vec3(1.0));
+//     // var rgb: vec3<f32> = x;
+//     rgb = rgb*rgb*(3.0 - 2.0 * rgb );
+//     return c.z * mix( vec3(1.0), vec3(rgb), vec3(c.y));
+// }
 
 fn wave_sin(x: f32) -> f32 {
     let amplitude: f32 = 0.5;
@@ -60,6 +76,7 @@ fn wave(v: vec2<f32>) -> vec2<f32> {
 fn fragment(in: VertexOutput) -> @location(0) vec4<f32> {
     let uv: vec2<f32> = wave(in.uv);
     let color: vec3<f32> = hsb2rgb(vec3(uv.x + sin(uv.y), 0.7, 1.0));
+    // let color: vec3<f32> = lin2srgb(vec3(uv.x + sin(uv.y), 0.7, 1.0));
 
     return vec4<f32>(color, 1.0);
 }
