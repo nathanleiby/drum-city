@@ -1,3 +1,5 @@
+use bevy::prelude::*;
+
 // Speed at which a Slow arrow moves
 pub const BASE_SPEED: f32 = 200.;
 
@@ -21,3 +23,15 @@ pub const WINDOW_WIDTH: f32 = 800.;
 
 /// Height of the window
 pub const WINDOW_HEIGHT: f32 = 600.;
+
+/// App state -- manages where we are in the game
+pub const APP_STATE_STAGE: &str = "app_state_stage";
+
+/// States
+#[derive(Debug, Default, Clone, Copy, Eq, PartialEq, Hash, States)]
+pub enum AppState {
+    #[default]
+    Menu,
+    Game,
+    MakeMap,
+}

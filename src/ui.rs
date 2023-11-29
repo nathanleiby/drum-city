@@ -98,7 +98,7 @@ pub struct UIPlugin;
 impl Plugin for UIPlugin {
     fn build(&self, app: &mut App) {
         app.add_systems(Startup, setup_ui)
-            .add_systems(Update, update_time_text)
-            .add_systems(Update, update_score_text);
+            .add_systems(Update, update_time_text.run_if(in_state(AppState::Game)))
+            .add_systems(Update, update_score_text.run_if(in_state(AppState::Game)));
     }
 }

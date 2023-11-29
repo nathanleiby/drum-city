@@ -1,6 +1,9 @@
 use bevy::prelude::*;
 
-use crate::{consts::START_TIME_OFFSET, types::SongConfig};
+use crate::{
+    consts::{AppState, START_TIME_OFFSET},
+    types::SongConfig,
+};
 
 #[derive(Component)]
 struct MyMusic;
@@ -34,6 +37,6 @@ pub struct AudioPlugin;
 impl Plugin for AudioPlugin {
     fn build(&self, app: &mut App) {
         app.add_systems(Startup, setup)
-            .add_systems(Update, start_song);
+            .add_systems(Update, start_song.run_if(in_state(AppState::Game)));
     }
 }

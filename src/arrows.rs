@@ -110,10 +110,11 @@ pub struct ArrowsPlugin;
 impl Plugin for ArrowsPlugin {
     fn build(&self, app: &mut App) {
         app.init_resource::<ArrowMaterialResource>()
+            // .add_systems(OnEnter(AppState::Game), setup_target_arrows)
             .add_systems(Startup, setup_target_arrows)
-            .add_systems(Update, spawn_arrows)
-            .add_systems(Update, move_arrows)
-            .add_systems(Update, despawn_arrows);
+            .add_systems(Update, spawn_arrows.run_if(in_state(AppState::Game)))
+            .add_systems(Update, move_arrows.run_if(in_state(AppState::Game)))
+            .add_systems(Update, despawn_arrows.run_if(in_state(AppState::Game)));
     }
 }
 #[derive(Component)]

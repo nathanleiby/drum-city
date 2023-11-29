@@ -53,6 +53,8 @@ fn main() {
             }),
             ..default()
         }))
+        .insert_resource(State::new(AppState::Menu))
+        .add_state::<AppState>()
         // song config
         .init_resource::<SongConfig>()
         .add_plugins(CameraPlugin)

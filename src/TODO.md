@@ -1,6 +1,5 @@
-
 - [ ] ELI5 - what is antialiasing and how does the config chosen affect it? (e.g. find a good explaniner article or YT video)
   - [ ] same idea with vsync
 - [ ] WASM support
 - [ ] on keypress, make the relevant target arrow glow, so it's clear you pressed that direction
-
+- [ ] on correct input, show a response that makes it clear (this is the "Fancy Click animation" section of the blog post. I didn't feel like porting the legacy approach to shaders for now..)
