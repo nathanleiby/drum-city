@@ -3,21 +3,27 @@ use bevy::prelude::*;
 use crate::{consts::*, score::Score};
 
 #[derive(Component)]
+struct UI;
+
+#[derive(Component)]
 struct TimeText;
 
 fn setup_ui(mut commands: Commands, asset_server: Res<AssetServer>) {
     let font = asset_server.load("fonts/FiraSans-Bold.ttf");
     commands
-        .spawn(NodeBundle {
-            style: Style {
-                position_type: PositionType::Absolute,
-                left: Val::Px(10.),
-                top: Val::Px(10.),
+        .spawn((
+            NodeBundle {
+                style: Style {
+                    position_type: PositionType::Absolute,
+                    left: Val::Px(10.),
+                    top: Val::Px(10.),
+                    ..Default::default()
+                },
+                background_color: BackgroundColor(Color::NONE),
                 ..Default::default()
             },
-            background_color: BackgroundColor(Color::NONE),
-            ..Default::default()
-        })
+            UI,
+        ))
         .with_children(|parent| {
             parent
                 .spawn(TextBundle {
@@ -94,11 +100,19 @@ fn update_score_text(score: Res<Score>, mut query: Query<(&mut Text, &ScoreText)
         );
     }
 }
+
+fn despawn_ui(mut commands: Commands, query: Query<(Entity, &UI)>) {
+    for (entity, _) in query.iter() {
+        commands.entity(entity).despawn_recursive();
+    }
+}
+
 pub struct UIPlugin;
 impl Plugin for UIPlugin {
     fn build(&self, app: &mut App) {
-        app.add_systems(Startup, setup_ui)
+        app.add_systems(OnEnter(AppState::Game), setup_ui)
             .add_systems(Update, update_time_text.run_if(in_state(AppState::Game)))
-            .add_systems(Update, update_score_text.run_if(in_state(AppState::Game)));
+            .add_systems(Update, update_score_text.run_if(in_state(AppState::Game)))
+            .add_systems(OnExit(AppState::Game), despawn_ui);
     }
 }

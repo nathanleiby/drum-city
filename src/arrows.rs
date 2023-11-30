@@ -110,11 +110,11 @@ pub struct ArrowsPlugin;
 impl Plugin for ArrowsPlugin {
     fn build(&self, app: &mut App) {
         app.init_resource::<ArrowMaterialResource>()
-            // .add_systems(OnEnter(AppState::Game), setup_target_arrows)
-            .add_systems(Startup, setup_target_arrows)
+            .add_systems(OnEnter(AppState::Game), setup_target_arrows)
             .add_systems(Update, spawn_arrows.run_if(in_state(AppState::Game)))
             .add_systems(Update, move_arrows.run_if(in_state(AppState::Game)))
-            .add_systems(Update, despawn_arrows.run_if(in_state(AppState::Game)));
+            .add_systems(Update, despawn_arrows.run_if(in_state(AppState::Game)))
+            .add_systems(OnExit(AppState::Game), despawn_target_arrows);
     }
 }
 #[derive(Component)]
@@ -165,5 +165,11 @@ fn despawn_arrows(
             commands.entity(entity).despawn();
             score.incr_failed();
         }
+    }
+}
+
+fn despawn_target_arrows(mut commands: Commands, query: Query<(Entity, &TargetArrow)>) {
+    for (entity, _) in query.iter() {
+        commands.entity(entity).despawn_recursive();
     }
 }

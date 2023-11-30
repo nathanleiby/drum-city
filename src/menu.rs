@@ -1,5 +1,7 @@
 use bevy::prelude::*;
 
+use crate::consts::AppState;
+
 /// Keep textures and materials for arrows
 #[derive(Resource)]
 struct ButtonMaterials {
@@ -75,10 +77,35 @@ fn setup_menu(mut commands: Commands, button_materials: Res<ButtonMaterials>) {
         });
 }
 
+fn despawn_menu(mut commands: Commands, query: Query<(Entity, &MenuUI)>) {
+    for (entity, _) in query.iter() {
+        commands.entity(entity).despawn_recursive();
+    }
+}
+
+fn update_button_color(
+    mut interaction_query: Query<
+        (&Interaction, &mut BackgroundColor),
+        (Changed<Interaction>, With<Button>),
+    >,
+) {
+    for (interaction, mut background_color) in interaction_query.iter_mut() {
+        let color = match *interaction {
+            Interaction::Pressed => PRESSED_COLOR,
+            Interaction::Hovered => HOVERED_COLOR,
+            Interaction::None => NORMAL_COLOR,
+        };
+
+        *background_color = BackgroundColor(color);
+    }
+}
+
 pub struct MenuPlugin;
 impl Plugin for MenuPlugin {
     fn build(&self, app: &mut App) {
         app.init_resource::<ButtonMaterials>()
-            .add_systems(Startup, setup_menu);
+            .add_systems(OnEnter(AppState::Menu), setup_menu)
+            .add_systems(Update, update_button_color.run_if(in_state(AppState::Menu)))
+            .add_systems(OnExit(AppState::Menu), despawn_menu);
     }
 }
