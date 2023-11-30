@@ -4,10 +4,12 @@ use bevy::{
 };
 
 mod arrows;
+mod menu;
 use arrows::ArrowsPlugin;
 
 mod score;
 use consts::*;
+use menu::MenuPlugin;
 use score::Score;
 
 mod ui;
@@ -62,6 +64,7 @@ fn main() {
         .add_plugins(UIPlugin)
         .add_plugins(AudioPlugin)
         .add_plugins(ShadersPlugin)
+        .add_plugins(MenuPlugin)
         .run();
 }
 
