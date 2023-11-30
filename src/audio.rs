@@ -36,7 +36,7 @@ fn start_song(time: Res<Time>, music_controller: Query<&AudioSink, With<MyMusic>
 pub struct AudioPlugin;
 impl Plugin for AudioPlugin {
     fn build(&self, app: &mut App) {
-        app.add_systems(Startup, setup)
+        app.add_systems(OnEnter(AppState::Game), setup)
             .add_systems(Update, start_song.run_if(in_state(AppState::Game)));
     }
 }

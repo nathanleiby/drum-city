@@ -13,7 +13,6 @@ use menu::MenuPlugin;
 use score::Score;
 
 mod ui;
-use types::SongConfig;
 use ui::UIPlugin;
 
 mod audio;
@@ -55,10 +54,8 @@ fn main() {
             }),
             ..default()
         }))
-        .insert_resource(State::new(AppState::Menu))
+        // .insert_resource(State::new(AppState::Menu))
         .add_state::<AppState>()
-        // song config
-        .init_resource::<SongConfig>()
         .add_plugins(CameraPlugin)
         .add_plugins(ArrowsPlugin)
         .add_plugins(UIPlugin)

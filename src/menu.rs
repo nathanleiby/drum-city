@@ -1,6 +1,8 @@
+use std::fs::read_dir;
+
 use bevy::prelude::*;
 
-use crate::consts::AppState;
+use crate::{consts::AppState, types::load_config};
 
 /// Keep textures and materials for arrows
 #[derive(Resource)]
@@ -27,6 +29,12 @@ impl FromWorld for ButtonMaterials {
 struct MenuUI;
 
 fn setup_menu(mut commands: Commands, button_materials: Res<ButtonMaterials>) {
+    let mut buttons: Vec<MenuButton> = get_songs()
+        .iter()
+        .map(|name| MenuButton::PlaySong(name.clone()))
+        .collect();
+    buttons.push(MenuButton::MakeMap);
+
     commands
         .spawn((
             NodeBundle {
@@ -44,36 +52,38 @@ fn setup_menu(mut commands: Commands, button_materials: Res<ButtonMaterials>) {
             MenuUI,
         ))
         .with_children(|parent| {
-            parent
-                .spawn(ButtonBundle {
-                    style: Style {
-                        width: Val::Px(350.0),
-                        height: Val::Px(65.0),
-                        margin: UiRect::all(Val::Auto),
-                        justify_content: JustifyContent::Center,
-                        align_items: AlignItems::Center,
-                        ..default()
-                    },
-                    background_color: BackgroundColor(NORMAL_COLOR),
-                    ..default()
-                })
-                .with_children(|parent| {
-                    parent.spawn(TextBundle {
-                        text: Text {
-                            sections: vec![TextSection::new(
-                                "Play".to_string(),
-                                TextStyle {
-                                    font_size: 20.0,
-                                    color: FONT_COLOR,
-                                    font: button_materials.font.clone(),
-                                    ..default()
-                                },
-                            )],
+            for button in buttons {
+                parent
+                    .spawn(ButtonBundle {
+                        style: Style {
+                            width: Val::Px(350.0),
+                            height: Val::Px(65.0),
+                            margin: UiRect::all(Val::Auto),
+                            justify_content: JustifyContent::Center,
+                            align_items: AlignItems::Center,
                             ..default()
                         },
+                        background_color: BackgroundColor(NORMAL_COLOR),
                         ..default()
+                    })
+                    .with_children(|parent| {
+                        parent.spawn(TextBundle {
+                            text: Text {
+                                sections: vec![TextSection::new(
+                                    button.name(),
+                                    TextStyle {
+                                        font_size: 20.0,
+                                        color: FONT_COLOR,
+                                        font: button_materials.font.clone(),
+                                        ..default()
+                                    },
+                                )],
+                                ..default()
+                            },
+                            ..default()
+                        });
                     });
-                });
+            }
         });
 }
 
@@ -100,12 +110,76 @@ fn update_button_color(
     }
 }
 
+pub fn get_songs() -> Vec<String> {
+    let paths = read_dir("assets/songs").unwrap();
+
+    let mut vec = vec![];
+    for dir_entry in paths {
+        let path = dir_entry.unwrap().path();
+
+        let file_extension = path.as_path().extension().unwrap();
+        if file_extension == "toml" {
+            let name_without_extension = path
+                .as_path()
+                .file_stem()
+                .unwrap()
+                .to_str()
+                .unwrap()
+                .to_string();
+            vec.push(name_without_extension);
+        }
+    }
+    vec
+}
+
+#[derive(Component, Debug)]
+pub enum MenuButton {
+    MakeMap,
+    PlaySong(String),
+}
+
+impl MenuButton {
+    fn name(&self) -> String {
+        match self {
+            MenuButton::MakeMap => "Make Map".to_string(),
+            MenuButton::PlaySong(name) => format!("Play song: {}", name),
+        }
+    }
+}
+
+pub fn button_press_system(
+    mut commands: Commands,
+    asset_server: Res<AssetServer>,
+    mut interaction_query: Query<(&Interaction, &MenuButton), (Changed<Interaction>, With<Button>)>,
+    // mut app_state: Res<State<AppState>>,
+) {
+    for (interaction, button) in interaction_query.iter_mut() {
+        if *interaction == Interaction::Pressed {
+            match button {
+                MenuButton::MakeMap => {
+                    // app_state.set(AppState::MakeMap);
+                    return;
+                }
+                MenuButton::PlaySong(song) => {
+                    let config = load_config(format!("{}.toml", song).as_str(), &asset_server);
+                    commands.insert_resource(config);
+                    // app_state.set(AppState::Game);
+                    return;
+                }
+            }
+        };
+    }
+}
+
 pub struct MenuPlugin;
 impl Plugin for MenuPlugin {
     fn build(&self, app: &mut App) {
         app.init_resource::<ButtonMaterials>()
             .add_systems(OnEnter(AppState::Menu), setup_menu)
-            .add_systems(Update, update_button_color.run_if(in_state(AppState::Menu)))
+            .add_systems(
+                Update,
+                (update_button_color, button_press_system).run_if(in_state(AppState::Menu)),
+            )
             .add_systems(OnExit(AppState::Menu), despawn_menu);
     }
 }
