@@ -1,12 +1,53 @@
 use std::{fs::File, io::Write};
 
 use crate::{
-    consts::{AppState, MAP_MAKER_POSITION},
+    consts::{AppState, MAP_MAKER_POSITION, START_TIME_OFFSET},
     time::ControlledTime,
     types::*,
 };
 use bevy::prelude::*;
 use serde::Serialize;
+
+#[derive(Component)]
+struct MyMusic;
+
+fn setup_audio(mut commands: Commands, audio: Res<MapMakerAudio>) {
+    commands.spawn((
+        AudioBundle {
+            source: audio.0.clone(),
+            settings: PlaybackSettings {
+                paused: true,
+                ..default()
+            },
+        },
+        MyMusic,
+    ));
+}
+
+fn start_song(time: Res<ControlledTime>, music_controller: Query<&AudioSink, With<MyMusic>>) {
+    let secs = time.elapsed_seconds();
+    let secs_last = secs - time.delta_seconds();
+
+    // TOOD: without any delay this causes a panic b/c cannot find music_controller (`NoEntities`...)
+    if secs_last <= START_TIME_OFFSET && START_TIME_OFFSET <= secs {
+        let sink = music_controller
+            .get_single()
+            .expect("failed to get audio player");
+        sink.play();
+    }
+}
+
+#[derive(Resource)]
+struct MapMakerAudio(Handle<AudioSource>);
+
+// The approach here it to create a handle to the material, so that arrows share a reference vs each having their own copy.
+impl FromWorld for MapMakerAudio {
+    fn from_world(world: &mut World) -> Self {
+        let asset_server = world.resource::<AssetServer>();
+        let audio = asset_server.load("songs/akisey-dance.ogg");
+        Self(audio)
+    }
+}
 
 #[derive(Resource, Serialize, Debug)]
 struct Presses {
@@ -36,7 +77,7 @@ fn save_key_presses(
     for direction in directions.iter() {
         if direction.key_just_pressed(&keyboard_input) {
             presses.arrows.push(ArrowTimeToml {
-                click_time: time.elapsed_seconds_f64(),
+                click_time: time.elapsed_seconds_f64() - START_TIME_OFFSET as f64,
                 speed: Speed::Slow,
                 direction: *direction,
             });
@@ -118,6 +159,13 @@ impl Plugin for MapMakerPlugin {
     fn build(&self, app: &mut App) {
         app.insert_resource(Presses { arrows: Vec::new() })
             .init_resource::<MapMakerArrowMaterialResource>()
+            .init_resource::<MapMakerAudio>()
+            .add_systems(OnEnter(AppState::MakeMap), setup_audio)
+            // TODO: ideally this would run once on startup, but I can't figure out how to do that safely
+            // with initializing the AudioSink. I tried flushing commands via `apply_deferred`
+            // Hitting:
+            //  failed to get audio player: NoEntities("bevy_ecs::query::state::QueryState<&bevy_audio::sinks::AudioSink, bevy_ecs::query::filter::With<drum_city::map_maker::MyMusic>>")
+            .add_systems(Update, start_song.run_if(in_state(AppState::MakeMap)))
             .add_systems(Update, save_key_presses.run_if(in_state(AppState::MakeMap)))
             // .add_systems(
             //     Update,
