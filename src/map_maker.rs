@@ -40,11 +40,13 @@ fn start_song(time: Res<ControlledTime>, music_controller: Query<&AudioSink, Wit
 #[derive(Resource)]
 struct MapMakerAudio(Handle<AudioSource>);
 
+const SONG_FILE: &str = "akisey-dance.ogg";
+
 // The approach here it to create a handle to the material, so that arrows share a reference vs each having their own copy.
 impl FromWorld for MapMakerAudio {
     fn from_world(world: &mut World) -> Self {
         let asset_server = world.resource::<AssetServer>();
-        let audio = asset_server.load("songs/akisey-dance.ogg");
+        let audio = asset_server.load(format!("songs/{}", SONG_FILE));
         Self(audio)
     }
 }
@@ -52,15 +54,29 @@ impl FromWorld for MapMakerAudio {
 #[derive(Resource, Serialize, Debug)]
 struct Presses {
     arrows: Vec<ArrowTimeToml>,
+    should_save: bool,
 }
 
 impl Drop for Presses {
     fn drop(&mut self) {
-        let text = toml::to_string(&self.arrows).expect("Couldn't convert presses to toml text");
+        if !self.should_save {
+            return;
+        }
+
+        let out = SongConfigToml {
+            name: "Map Maker output".to_string(),
+            filename: SONG_FILE.to_string(),
+            arrows: self.arrows.clone(),
+        };
+        let text = toml::to_string(&out).expect("Couldn't convert presses to toml text");
         let mut file = File::create("assets/songs/map.toml").expect("Couldn't open map.toml file");
         file.write_all(text.as_bytes())
             .expect("Couldn't write to map.toml file");
     }
+}
+
+fn setup_key_presses_storage(mut presses: ResMut<Presses>) {
+    presses.should_save = true;
 }
 
 fn save_key_presses(
@@ -157,24 +173,28 @@ fn toggle_map_maker_arrows(
 pub struct MapMakerPlugin;
 impl Plugin for MapMakerPlugin {
     fn build(&self, app: &mut App) {
-        app.insert_resource(Presses { arrows: Vec::new() })
-            .init_resource::<MapMakerArrowMaterialResource>()
-            .init_resource::<MapMakerAudio>()
-            .add_systems(OnEnter(AppState::MakeMap), setup_audio)
-            // TODO: ideally this would run once on startup, but I can't figure out how to do that safely
-            // with initializing the AudioSink. I tried flushing commands via `apply_deferred`
-            // Hitting:
-            //  failed to get audio player: NoEntities("bevy_ecs::query::state::QueryState<&bevy_audio::sinks::AudioSink, bevy_ecs::query::filter::With<drum_city::map_maker::MyMusic>>")
-            .add_systems(Update, start_song.run_if(in_state(AppState::MakeMap)))
-            .add_systems(Update, save_key_presses.run_if(in_state(AppState::MakeMap)))
-            // .add_systems(
-            //     Update,
-            //     save_to_file_on_exit.run_if(in_state(AppState::MakeMap)),
-            // )
-            .add_systems(OnEnter(AppState::MakeMap), setup_map_maker_arrows)
-            .add_systems(
-                Update,
-                toggle_map_maker_arrows.run_if(in_state(AppState::MakeMap)),
-            );
+        app.insert_resource(Presses {
+            arrows: Vec::new(),
+            should_save: false,
+        })
+        .init_resource::<MapMakerArrowMaterialResource>()
+        .init_resource::<MapMakerAudio>()
+        .add_systems(OnEnter(AppState::MakeMap), setup_audio)
+        .add_systems(OnEnter(AppState::MakeMap), setup_key_presses_storage)
+        // TODO: ideally this would run once on startup, but I can't figure out how to do that safely
+        // with initializing the AudioSink. I tried flushing commands via `apply_deferred`
+        // Hitting:
+        //  failed to get audio player: NoEntities("bevy_ecs::query::state::QueryState<&bevy_audio::sinks::AudioSink, bevy_ecs::query::filter::With<drum_city::map_maker::MyMusic>>")
+        .add_systems(Update, start_song.run_if(in_state(AppState::MakeMap)))
+        .add_systems(Update, save_key_presses.run_if(in_state(AppState::MakeMap)))
+        // .add_systems(
+        //     Update,
+        //     save_to_file_on_exit.run_if(in_state(AppState::MakeMap)),
+        // )
+        .add_systems(OnEnter(AppState::MakeMap), setup_map_maker_arrows)
+        .add_systems(
+            Update,
+            toggle_map_maker_arrows.run_if(in_state(AppState::MakeMap)),
+        );
     }
 }

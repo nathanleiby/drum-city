@@ -157,7 +157,7 @@ pub struct SongConfigToml {
     pub arrows: Vec<ArrowTimeToml>,
 }
 
-#[derive(Serialize, Deserialize, Debug)]
+#[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct ArrowTimeToml {
     pub click_time: f64,
     pub speed: Speed,
