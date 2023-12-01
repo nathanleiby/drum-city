@@ -53,24 +53,28 @@ fn setup_menu(mut commands: Commands, button_materials: Res<ButtonMaterials>) {
         ))
         .with_children(|parent| {
             for button in buttons {
+                let name = button.name();
                 parent
-                    .spawn(ButtonBundle {
-                        style: Style {
-                            width: Val::Px(350.0),
-                            height: Val::Px(65.0),
-                            margin: UiRect::all(Val::Auto),
-                            justify_content: JustifyContent::Center,
-                            align_items: AlignItems::Center,
+                    .spawn((
+                        ButtonBundle {
+                            style: Style {
+                                width: Val::Px(350.0),
+                                height: Val::Px(65.0),
+                                margin: UiRect::all(Val::Auto),
+                                justify_content: JustifyContent::Center,
+                                align_items: AlignItems::Center,
+                                ..default()
+                            },
+                            background_color: BackgroundColor(NORMAL_COLOR),
                             ..default()
                         },
-                        background_color: BackgroundColor(NORMAL_COLOR),
-                        ..default()
-                    })
+                        button,
+                    ))
                     .with_children(|parent| {
                         parent.spawn(TextBundle {
                             text: Text {
                                 sections: vec![TextSection::new(
-                                    button.name(),
+                                    name,
                                     TextStyle {
                                         font_size: 20.0,
                                         color: FONT_COLOR,
@@ -150,20 +154,20 @@ impl MenuButton {
 pub fn button_press_system(
     mut commands: Commands,
     asset_server: Res<AssetServer>,
-    mut interaction_query: Query<(&Interaction, &MenuButton), (Changed<Interaction>, With<Button>)>,
-    // mut app_state: Res<State<AppState>>,
+    interaction_query: Query<(&Interaction, &MenuButton), (Changed<Interaction>, With<Button>)>,
+    mut app_state: ResMut<NextState<AppState>>,
 ) {
-    for (interaction, button) in interaction_query.iter_mut() {
+    for (interaction, button) in interaction_query.iter() {
         if *interaction == Interaction::Pressed {
             match button {
                 MenuButton::MakeMap => {
-                    // app_state.set(AppState::MakeMap);
+                    app_state.set(AppState::MakeMap);
                     return;
                 }
                 MenuButton::PlaySong(song) => {
                     let config = load_config(format!("{}.toml", song).as_str(), &asset_server);
                     commands.insert_resource(config);
-                    // app_state.set(AppState::Game);
+                    app_state.set(AppState::Game);
                     return;
                 }
             }
