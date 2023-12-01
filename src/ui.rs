@@ -1,6 +1,6 @@
 use bevy::prelude::*;
 
-use crate::{consts::*, score::Score};
+use crate::{consts::*, score::Score, time::ControlledTime};
 
 #[derive(Component)]
 struct UI;
@@ -73,7 +73,7 @@ fn setup_ui(mut commands: Commands, asset_server: Res<AssetServer>) {
         });
 }
 
-fn update_time_text(time: Res<Time>, mut query: Query<(&mut Text, &TimeText)>) {
+fn update_time_text(time: Res<ControlledTime>, mut query: Query<(&mut Text, &TimeText)>) {
     let secs = time.elapsed_seconds() - START_TIME_OFFSET;
 
     // don't do anything until song starts

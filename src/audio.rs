@@ -2,6 +2,7 @@ use bevy::prelude::*;
 
 use crate::{
     consts::{AppState, START_TIME_OFFSET},
+    time::ControlledTime,
     types::SongConfig,
 };
 
@@ -21,7 +22,7 @@ fn setup(mut commands: Commands, song_config: Res<SongConfig>) {
     ));
 }
 
-fn start_song(time: Res<Time>, music_controller: Query<&AudioSink, With<MyMusic>>) {
+fn start_song(time: Res<ControlledTime>, music_controller: Query<&AudioSink, With<MyMusic>>) {
     let secs = time.elapsed_seconds();
     let secs_last = secs - time.delta_seconds();
 

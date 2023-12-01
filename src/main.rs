@@ -6,6 +6,7 @@ use bevy::{
 mod arrows;
 mod debug;
 mod menu;
+mod time;
 use arrows::ArrowsPlugin;
 
 mod score;
@@ -15,6 +16,7 @@ use menu::MenuPlugin;
 use score::Score;
 
 mod ui;
+use time::TimePlugin;
 use ui::UIPlugin;
 
 mod audio;
@@ -65,6 +67,7 @@ fn main() {
         .add_plugins(ShadersPlugin)
         .add_plugins(MenuPlugin)
         .add_plugins(DebugPlugin)
+        .add_plugins(TimePlugin)
         .run();
 }
 

@@ -1,3 +1,4 @@
+use crate::time::ControlledTime;
 use crate::{consts::*, types::SongConfig};
 use crate::{score, types::*};
 use bevy::prelude::*;
@@ -40,7 +41,7 @@ fn spawn_arrows(
     mut commands: Commands,
     mut song_config: ResMut<SongConfig>,
     materials: Res<ArrowMaterialResource>,
-    time: Res<Time>,
+    time: Res<ControlledTime>,
 ) {
     let secs = time.elapsed_seconds_f64() - 3.;
     let secs_last = secs - time.delta_seconds_f64();
@@ -87,7 +88,7 @@ fn spawn_arrows(
 }
 
 /// Moves arrows forward
-fn move_arrows(time: Res<Time>, mut query: Query<(&mut Transform, &Arrow)>) {
+fn move_arrows(time: Res<ControlledTime>, mut query: Query<(&mut Transform, &Arrow)>) {
     for (mut transform, arrow) in query.iter_mut() {
         transform.translation.x += time.delta_seconds() * arrow.speed.value();
 
