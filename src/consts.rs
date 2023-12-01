@@ -9,6 +9,9 @@ pub const SPAWN_POSITION: f32 = -400.;
 /// X coordinate value where arrows should be clicked
 pub const TARGET_POSITION: f32 = 200.;
 
+/// X coordinate value where arrows appear in Map Maker mode
+pub const MAP_MAKER_POSITION: f32 = 0.;
+
 /// Margin of error (in x coordinate val) for clicking on an arrow
 pub const THRESHOLD: f32 = 20.;
 

@@ -5,6 +5,7 @@ use bevy::{
 
 mod arrows;
 mod debug;
+mod map_maker;
 mod menu;
 mod time;
 use arrows::ArrowsPlugin;
@@ -12,6 +13,7 @@ use arrows::ArrowsPlugin;
 mod score;
 use consts::*;
 use debug::DebugPlugin;
+use map_maker::MapMakerPlugin;
 use menu::MenuPlugin;
 use score::Score;
 
@@ -68,6 +70,7 @@ fn main() {
         .add_plugins(MenuPlugin)
         .add_plugins(DebugPlugin)
         .add_plugins(TimePlugin)
+        .add_plugins(MapMakerPlugin)
         .run();
 }
 
