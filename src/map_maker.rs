@@ -1,11 +1,11 @@
 use std::{fs::File, io::Write};
 
 use crate::{
-    consts::{AppState, MAP_MAKER_POSITION, TARGET_POSITION},
+    consts::{AppState, MAP_MAKER_POSITION},
     time::ControlledTime,
     types::*,
 };
-use bevy::{app::AppExit, prelude::*, window::WindowFocused};
+use bevy::prelude::*;
 use serde::Serialize;
 
 #[derive(Resource, Serialize, Debug)]
